@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using LanguageFeatures.Models;
@@ -121,12 +122,53 @@ namespace LanguageFeatures.Controllers
             };
 
             decimal total = 0;
-            foreach(Product prod in products.FilterByCategory("Soccer"))
+            foreach (Product prod in products.Filter(prod => prod.Category == "Soccer" || prod.Price > 20))
             {
                 total += prod.Price;
             }
 
             return View("Result", (object)String.Format("Total: {0}", total));
+        }
+
+        public ViewResult CreateAnonArray()
+        {
+            var oddsAndEnds = new[]
+            {
+                new { Name = "MVC", Category = "Pattern" },
+                new { Name = "Hat", Category = "Clothing" },
+                new { Name = "Apple", Category = "Fruit" }
+            };
+
+            StringBuilder result = new StringBuilder();
+            foreach(var item in oddsAndEnds)
+            {
+                result.Append(item.Name).Append(" ");
+            }
+
+            return View("Result", (object)result.ToString());
+        }
+
+        public ViewResult FindProduct()
+        {
+            Product[] products =
+            {
+                new Product {Name = "Kayak", Category = "Watersports", Price = 275M },
+                new Product {Name = "Lifejacket", Category = "Watersports", Price = 48.95M },
+                new Product {Name = "Soccer ball", Category = "Soccer", Price = 19.50M },
+                new Product {Name = "Corner flag", Category = "Soccer", Price = 34.95M }
+            };
+
+            var foundProducts = products.OrderByDescending(e => e.Price)
+                                        .Take(3)
+                                        .Select(e => new { e.Name, e.Price });
+
+            // create the result
+            StringBuilder result = new StringBuilder();
+            foreach(var p in foundProducts)
+            {
+                result.AppendFormat("Price: {0} ", p.Price);
+            }
+            return View("Result", (object)result.ToString());
         }
     }
 }
